@@ -1,6 +1,8 @@
 from django.shortcuts import render
 from .models import StoredRequests
 from moviepy.editor import ColorClip, TextClip, CompositeVideoClip
+from IPython.display import HTML
+from base64 import b64encode
 
 def generate_running_line(request, text):
     StoredRequests.objects.create(request=request, text=text)
@@ -38,7 +40,31 @@ def generate_running_line(request, text):
     # Собираем итоговое видео из фона и бегущего текста
     video = CompositeVideoClip([bg_clip, txt_moving])
 
-    video_file_path = "/content/bitrix_test_view/bitrix_test/bitrixproject/video/scrolling_text.mp4"
+    video_file_path = "scrolling_text.mp4"
     video.write_videofile(video_file_path, fps=60)
 
-    return render(request, 'main/index.html')
+    mp4 = open(video_file_path,'rb').read()
+    data_url = "data:video/mp4;base64," + b64encode(mp4).decode()
+    html_str = f"""
+    <!doctype html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport"
+              content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>Running line</title>
+    </head>
+    <body>
+    <video width=400 controls>
+          <source src={data_url} type="video/mp4">
+    </video>
+    </body>
+    </html>
+    """
+
+    Html_file = open("main/templates/main/index.html", "w")
+    Html_file.write(html_str)
+    Html_file.close()
+
+    return render(request, "main/index.html")
