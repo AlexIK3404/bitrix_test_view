@@ -38,7 +38,7 @@ def generate_running_line(request, text):
     # Собираем итоговое видео из фона и бегущего текста
     video = CompositeVideoClip([bg_clip, txt_moving])
 
-    video_file_path = "video/scrolling_text.mp4"
+    video_file_path = "/content/bitrix_test_view/bitrix_test/bitrixproject/video/scrolling_text.mp4"
     video.write_videofile(video_file_path, fps=60)
 
     return render(request, 'main/index.html')
